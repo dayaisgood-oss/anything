@@ -1,0 +1,23 @@
+<!-- Image Upload Section -->
+<div id="image-upload" style="display:none;">
+  <h3>Upload Image:</h3>
+  <input type="file" id="image-file">
+  <button onclick="uploadImage()">Upload</button>
+  <div id="image-preview"></div>
+</div>
+
+<script>
+  // Function to upload and display images
+  function uploadImage() {
+    const file = document.getElementById('image-file').files[0];
+    const reader = new FileReader();
+    reader.onloadend = function() {
+      const img = document.createElement('img');
+      img.src = reader.result; // Show the image preview
+      document.getElementById('image-preview').appendChild(img);
+    }
+    if (file) {
+      reader.readAsDataURL(file); // Read the image file as a URL
+    }
+  }
+</script>
