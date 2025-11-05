@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co-Owner Page</title>
+</head>
+<body>
+    <h1>Welcome to the Co-Owner's Section</h1>
+
+    <!-- Co-owner Access Section -->
+    <div id="co-owner-section" style="display:none;">
+        <h3>Enter secret code to post an announcement:</h3>
+        <input type="password" id="secret-code-input" placeholder="Enter code">
+        <button onclick="checkCode()">Submit</button>
+        <br><br>
+        <textarea id="announcement-input" placeholder="Enter your global announcement here" style="width: 100%; height: 100px; display:none;"></textarea>
+        <button id="submit-announcement" style="display:none;" onclick="submitAnnouncement()">Submit Announcement</button>
+    </div>
+
+    <!-- Announcement Container -->
+    <div id="announcement-container" style="display:none; background-color: #f8d7da; padding: 10px; text-align: center; font-size: 18px;">
+        <strong>Global Announcement: </strong><span id="announcement-text">No announcement yet.</span>
+    </div>
+
+    <!-- Chatroom Section -->
+    <div id="chatroom" style="display:none; background-color: #eee; padding: 20px; max-width: 600px; margin: auto;">
+        <h3>Co-owner Chatroom:</h3>
+        <ul id="messages-list"></ul>
+        <textarea id="message-input" placeholder="Enter your message here" style="width: 100%; height: 100px;"></textarea>
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <!-- Image Upload Section -->
+    <div id="image-upload" style="display:none;">
+        <h3>Upload Image:</h3>
+        <input type="file" id="image-file">
+        <button onclick="uploadImage()">Upload</button>
+        <div id="image-preview"></div>
+    </div>
+
+    <script>
+        // Secret code check for co-owner access
+        function checkCode() {
+            const secretCode = 'co-owner-secret'; // Set your secret code
+            const enteredCode = document.getElementById('secret-code-input').value;
+            if (enteredCode === secretCode) {
+                document.getElementById('co-owner-section').style.display = 'block';
+                document.getElementById('announcement-container').style.display = 'block';
+                document.getElementById('secret-code-input').disabled = true;
+                document.getElementById('submit-announcement').style.display = 'inline-block';
+                document.getElementById('chatroom').style.display = 'block';
+                document.getElementById('image-upload').style.display = 'block';
+            } else {
+                alert('Invalid code. Please try again.');
+            }
+        }
+
+        // Submit the global announcement and save it to localStorage
+        function submitAnnouncement() {
+            const announcementText = document.getElementById('announcement-input').value;
+            localStorage.setItem('globalAnnouncement', announcementText); // Store it in localStorage
+            document.getElementById('announcement-text').textContent = announcementText;
+            document.getElementById('announcement-input').value = '';  // Clear the input
+            alert('Announcement posted successfully!');
+        }
+
+        // Chatroom - Send message to localStorage
+        function sendMessage() {
+            const message = document.getElementById('message-input').value;
+            const messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+            messages.push(message);
+            localStorage.setItem('chatMessages', JSON.stringify(messages)); // Save messages to localStorage
+            document.getElementById('message-input').value = ''; // Clear input
+            displayMessages();
+        }
+
+        // Display messages from localStorage
+        function displayMessages() {
+            const messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+            const messagesList = document.getElementById('messages-list');
+            messagesList.innerHTML = ''; // Clear current messages
+            messages.forEach(function(message) {
+                const li = document.createElement('li');
+                li.textContent = message;
+                messagesList.appendChild(li);
+            });
+        }
+
+        // Image Upload functionality
+        function uploadImage() {
+            const file = document.getElementById('image-file').files[0];
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                const img = document.createElement('img');
+                img.src = reader.result; // Show the image preview
+                document.getElementById('image-preview').appendChild(img);
+            }
+            if (file) {
+                reader.readAsDataURL(file); // Read the image file as a URL
+            }
+        }
+
+        window.onload = function() {
+            displayMessages();
+            const storedAnnouncement = localStorage.getItem('globalAnnouncement');
+            if (storedAnnouncement) {
+                document.getElementById('announcement-text').textContent = storedAnnouncement;
+                document.getElementById('announcement-container').style.display = 'block';
+            }
+        };
+    </script>
+</body>
+</html>
