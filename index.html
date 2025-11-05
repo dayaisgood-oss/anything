@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>anything.com</title>
+<style>
+  :root{--bg:#0f1115;--card:#111217;--muted:#9aa0a6;--accent:#c62828}
+  html,body{height:100%;margin:0;background:transparent;color:#ececec;font-family:Inter,ui-sans-serif,system-ui,Arial;scroll-behavior:smooth;}
+  .dvd-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+  body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(135deg,#0c0c0c,#111217);animation:grad 20s ease infinite;opacity:0.4;}
+  @keyframes grad{0%{background:linear-gradient(135deg,#0c0c0c,#111217);}50%{background:linear-gradient(135deg,#111217,#1a1a1f);}100%{background:linear-gradient(135deg,#0c0c0c,#111217);}}
+  .wrap{max-width:880px;margin:40px auto;padding:28px;position:relative;z-index:10;display:flex;flex-direction:column;gap:60px}
+  header{display:flex;flex-direction:column;gap:12px;align-items:flex-start;padding:40px 20px;background:rgba(17,18,23,0.85);border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,0.6)}
+  h1{font-size:48px;margin:0;letter-spacing:0.5px}
+  .slogan{color:var(--accent);font-weight:700;font-size:18px}
+  section.card{background:rgba(17,18,23,0.75);backdrop-filter:blur(6px);border-radius:14px;padding:28px;margin-top:20px;box-shadow:0 6px 24px rgba(0,0,0,.7);border:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;gap:18px;transition:transform 0.3s}
+  section.card:hover{transform:translateY(-3px)}
+  .owners{display:flex;gap:14px;flex-wrap:wrap}
+  .owner{background:rgba(255,255,255,0.02);padding:14px 16px;border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,0.03);transition:0.2s}
+  .owner:hover{background:rgba(255,255,255,0.05);transform:scale(1.05)}
+  button{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:12px 18px;border-radius:10px;color:inherit;cursor:pointer;transition:0.2s}
+  button:hover{background:rgba(255,255,255,0.04);transform:scale(1.03)}
+  .muted{color:var(--muted);font-size:14px}
+  .stat{font-size:28px;font-weight:700}
+  .stat-list{display:flex;flex-direction:column;gap:12px}
+  .note{background:#2a2a2a;color:#ffefef;padding:12px;border-radius:10px;margin-top:10px;border-left:4px solid var(--accent)}
+  /* modal */
+  .modal-back{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:50;animation:fadein 0.25s}
+  @keyframes fadein{0%{opacity:0}100%{opacity:1}}
+  .modal{background:#0b0b0c;padding:22px;border-radius:14px;max-width:560px;width:90%;box-shadow:0 12px 44px rgba(0,0,0,.8);border:1px solid rgba(255,255,255,0.03);color:#e9e9e9;display:flex;flex-direction:column;gap:12px;animation:pop 0.3s}
+  @keyframes pop{0%{transform:scale(0.95);opacity:0}100%{transform:scale(1);opacity:1}}
+  .modal h3{margin:0 0 8px 0}
+  label{display:block;font-size:13px;margin-top:10px;color:var(--muted)}
+  input[type=text], input[type=email], input[type=password]{width:100%;padding:8px;margin-top:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.05);background:#0d0d0d;color:inherit}
+  .row{display:flex;gap:8px}
+  .stats-bar{height:10px;background:#0a0a0a;border-radius:12px;overflow:hidden;margin-top:8px}
+  .stats-bar > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#ff6b6b,#ffc857)}
+  footer{margin-top:24px;color:var(--muted);font-size:14px;text-align:center}
+  .disabled{opacity:.6}
+  .secret{background:#081; color:#071; padding:10px;border-radius:6px;margin-top:8px}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<canvas class="dvd-canvas" id="dvdCanvas"></canvas>
+
+<div class="wrap">
+  <header>
+    <h1>anything.com</h1>
+    <div class="slogan">there is no low we won't steep to for money</div>
+  </header>
+
+  <section class="card" id="owners">
+    <h2>Co-Owners</h2>
+    <div class="owners">
+      <div class="owner" data-owner="fidel">CO-CO-CO owner fidel</div>
+      <div class="owner" data-owner="johan">co-co owner johan</div>
+      <div class="owner" data-owner="daya">co owner daya</div>
+    </div>
+    <div class="muted">Click a name to learn more.</div>
+  </section>
+
+  <section class="card" id="actions">
+    <h2>Actions</h2>
+    <div style="display:flex;gap:14px;flex-wrap:wrap">
+      <button id="hireBtn">Hiring</button>
+      <button id="charityBtn">Charity (aka my pocket)</button>
+    </div>
+    <div class="note">ALL SATIRE — DO NOT ENTER REAL INFO. Sensitive/demo fields are disabled to keep the site safe.</div>
+  </section>
+
+  <section class="card" id="stats">
+    <h2>Statistics & Employee Feedback</h2>
+    <div class="stat-list">
+      <div class="stat">Share increase: <span id="statNum">0</span>%</div>
+      <div class="stats-bar"><i id="statsBar"></i></div>
+      <div class="stat">Employee satisfaction: 2% (up 2% from last year)</div>
+      <div class="stat">Bribes delivered on time: 99.9%</div>
+      <div class="stat">Public perception positive: 0.01%</div>
+      <div class="stat">Shareholder confusion index: 800%</div>
+    </div>
+    <div class="muted">As seen in definitely-not-real news.</div>
+  </section>
+
+  <section class="card" id="secretFlow">
+    <h2>Restricted Area</h2>
+    <div class="muted">Enter master code to proceed.</div>
+    <label>Master code</label>
+    <input type="text" id="masterCode" placeholder="Enter code">
+    <button id="masterCheck">Submit</button>
+
+    <div id="whoArea" class="hidden">
+      <label>Who are you?</label>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="whoBtn" data-person="fidel">Fidel</button>
+        <button class="whoBtn" data-person="johan">Johan</button>
+        <button class="whoBtn" data-person="daya">Daya</button>
+      </div>
+      <div id="perPrompt" class="muted" style="margin-top:10px">Click an owner and enter their secret code.</div>
+      <div id="secretMsg" class="hidden secret"></div>
+    </div>
+  </section>
+
+  <footer>
+    Evil company, stylishly parodying corporate startups. Satire only.
+  </footer>
+</div>
+
+<div class="modal-back" id="modalBack">
+  <div class="modal" id="modal">
+    <h3 id="modalTitle"></h3>
+    <div id="modalContent"></div>
+    <div style="text-align:right;margin-top:12px">
+      <button id="modalClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Owner bios
+const bios = {
+  fidel:{title:"CO-CO-CO owner fidel",html:"<strong>Head of corruption.</strong> He has connections who knows where."},
+  johan:{title:"co-co owner johan",html:"<strong>Tax evasion overseas.</strong> The art of plausible deniability — every penny disappears elegantly."},
+  daya:{title:"co owner daya",html:"<strong>Industrial monopolist.</strong> He owns stuff he shouldn't."}
+};
+
+const modalBack=document.getElementById('modalBack');
+const modalTitle=document.getElementById('modalTitle');
+const modalContent=document.getElementById('modalContent');
+document.getElementById('modalClose').addEventListener('click',()=>modalBack.style.display='none');
+
+document.querySelectorAll('.owner').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const k=el.dataset.owner;
+    modalTitle.textContent=bios[k].title;
+    modalContent.innerHTML="<p>"+bios[k].html+"</p>";
+    modalBack.style.display='flex';
+  });
+});
+
+function openForm(title){
+  modalTitle.textContent=title;
+  modalContent.innerHTML=`
+    <p><strong>ALL SATIRE — DO NOT ENTER REAL INFO.</strong></p>
+    <label>Name</label><input id="nm" type="text" placeholder="Your name">
+    <label>How can we contact you</label><input id="how" type="text" placeholder="Phone / handle">
+    <label>Email</label><input id="em" type="email" placeholder="email@example.com">
+    <label>SSN (demo)</label><input id="ssn" type="text" placeholder="000-00-0000" data-satire-only aria-label="SSN demo (not collected)">
+    <label>Credit Card (demo)</label><input id="cc" type="text" placeholder="4111 1111 1111 1111" data-satire-only aria-label="Credit card demo (not collected)">
+    <div class="note">These sensitive fields are disabled — this form does not and will not send sensitive data.</div>
+    <div style="text-align:right;margin-top:12px"><button id="fakeSubmit">Submit (demo)</button></div>`;
+  modalBack.style.display='flex';
+  setTimeout(()=>{
+    const fs=document.getElementById('fakeSubmit');
+    if(fs)fs.addEventListener('click',()=>{
+      modalContent.innerHTML+='<div class="muted" style="margin-top:12px">Thanks — this is satire/demo. Nothing was sent.</div>';
+    });
+  },50);
+}
+document.getElementById('hireBtn').addEventListener('click',()=>openForm('Hiring (satire)'));
+document.getElementById('charityBtn').addEventListener('click',()=>openForm('Charity (aka my pocket) (satire)'));
+
+// Stats animation
+function animateStats(){
+  const target=95;
+  let cur=0;
+  const el=document.getElementById('statNum');
+  const bar=document.getElementById('statsBar');
+  const step=()=>{if(cur<target){cur+=1;el.textContent=cur;bar.style.width=cur+'%';setTimeout(step,40);}else{el.textContent=target;}}
+  step();
+}
+animateStats();
+
+// Secret code
+const masterInput=document.getElementById('masterCode');
+const masterBtn=document.getElementById('masterCheck');
+const whoArea=document.getElementById('whoArea');
+const secretMsg=document.getElementById('secretMsg');
+masterBtn.addEventListener('click',()=>{
+  const v=masterInput.value.trim();
+  if(v.toLowerCase()==='co-co-co owner'){whoArea.classList.remove('hidden');masterInput.value='';masterInput.disabled=true;masterBtn.disabled=true;}else{alert('Incorrect master code.');}
+});
+
+const personCodes={fidel:'4321',johan:'1234',daya:'JEET'};
+document.querySelectorAll('.whoBtn').forEach(b=>{b.addEventListener('click',()=>{const p=b.dataset.person;const code=prompt('Enter code for '+p+':');if(code===null)return;if(code===personCodes[p]){secretMsg.textContent='Access granted for '+p+' — welcome back, co-owner.';secretMsg.classList.remove('hidden');}else{alert('Wrong code.');}});});
+
+// DVD logo
+const canvas=document.getElementById('dvdCanvas');
+const ctx=canvas.getContext('2d');
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+window.addEventListener('resize',resize);
+resize();
+let logo={text:'anything.com',x:60,y:60,vx:0.8,vy:0.6,font:36,color:'#ffffff'};
+const palette=['#ff3b3b','#ffd166','#6be3ff','#b28cff','#8aff8a','#ffd1f0'];
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.font=logo.font+'px Arial';ctx.textBaseline='top';
+  const w=ctx.measureText(logo.text).width;const h=logo.font;
+  logo.x+=logo.vx;logo.y+=logo.vy;let bounced=false;
+  if(logo.x+w>=canvas.width){logo.vx*=-1;bounced=true;logo.x=canvas.width-w-1;}else if(logo.x<=0){logo.vx*=-1;bounced=true;logo.x=1;}
+  if(logo.y+h>=canvas.height){logo.vy*=-1;bounced=true;logo.y=canvas.height-h-1;}else if(logo.y<=0){logo.vy*=-1;bounced=true;logo.y=1;}
+  if(bounced){logo.color=palette[Math.floor(Math.random()*palette.length)];}
+  ctx.fillStyle='rgba(0,0,0,0.35)';ctx.fillText(logo.text,logo.x+3,logo.y+3);
+  ctx.fillStyle=logo.color;ctx.fillText(logo.text,logo.x,logo.y);
+  requestAnimationFrame(draw);
+}
+draw();
+</script>
+
+<script>
+/* SATIRE-SAFE: ensure no sensitive data is transmitted.
+   - Prevent any form submission or network requests triggered by the demo form.
+   - Intercept Enter key to avoid accidental submits.
+   - Clear values immediately after the demo "submit" action so nothing remains.
+   - Remove name attributes from inputs (they were never added), and mark fields clearly.
+*/
+(function(){
+  // Prevent any programmatic form submit on the page
+  const forms = document.querySelectorAll('form');
+  forms.forEach(f => {
+    f.addEventListener('submit', function(e){ e.preventDefault(); e.stopImmediatePropagation(); });
+  });
+
+  // Intercept Enter on inputs marked data-satire-only or any input inside the page
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      const active = document.activeElement;
+      if(active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')){
+        // Prevent default Enter behavior (like submitting form)
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        // Show non-blocking notification instead of sending anything
+        try {
+          // If modal exists in original site, reuse; otherwise use alert
+          const modal = document.getElementById('modalBack') || document.getElementById('modal');
+          if(modal){
+            // create a small ephemeral message area
+            const msg = document.createElement('div');
+            msg.className = 'muted';
+            msg.style.marginTop='12px';
+            msg.textContent = 'Demo only — nothing is collected.';
+            modal.querySelector('.modalContent')?.appendChild(msg);
+            setTimeout(()=>msg.remove(), 4000);
+          } else {
+            // fallback
+            console.log('Demo only — nothing is collected.');
+          }
+        } catch(err){
+          console.log('Demo only — nothing is collected.');
+        }
+        // clear the active value so nothing stays in DOM long-term
+        try { active.value = ''; } catch(e){}
+      }
+    }
+  }, true);
+
+  // Protect the demo submit button if present
+  const fs = document.getElementById('fakeSubmit');
+  if(fs){
+    fs.addEventListener('click', function(ev){
+      ev.preventDefault(); ev.stopImmediatePropagation();
+      // show message in modal if available
+      const modalContent = document.querySelector('.modalContent') || document.querySelector('#modalContent') || null;
+      if(modalContent){
+        const d = document.createElement('div');
+        d.className = 'muted';
+        d.style.marginTop='12px';
+        d.textContent = 'Thanks — this is satire/demo. Nothing was sent.';
+        modalContent.appendChild(d);
+        // wipe any demo-only inputs immediately
+        document.querySelectorAll('input[data-satire-only]').forEach(i=>i.value='');
+        setTimeout(()=>d.remove(), 4000);
+      } else {
+        alert('Thanks — this is satire/demo. Nothing was sent.');
+        document.querySelectorAll('input[data-satire-only]').forEach(i=>i.value='');
+      }
+    }, true);
+  }
+
+  // Block fetch / XHR from this page to be extra safe while this demo is open
+  // (this replaces global fetch / XMLHttpRequest in the page)
+  try {
+    const origFetch = window.fetch;
+    window.fetch = function(){ console.warn('fetch blocked by satire-safe mode'); return new Promise(()=>{}); };
+    const OrigX = window.XMLHttpRequest;
+    function FakeX(){ console.warn('XMLHttpRequest blocked by satire-safe mode'); }
+    FakeX.prototype.open = function(){ console.warn('XHR.open blocked'); };
+    FakeX.prototype.send = function(){ console.warn('XHR.send blocked'); };
+    window.XMLHttpRequest = FakeX;
+    // store backups in case other scripts check them
+    window.__satire_safe_backups = {fetch: origFetch, XHR: OrigX};
+  } catch(e){ console.warn('Could not install global network blocks:', e); }
+
+})();
+</script>
+
+</body>
+</html>
