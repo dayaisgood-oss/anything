@@ -1,0 +1,48 @@
+<!-- Announcement Container -->
+<div id="announcement-container" style="display:none; background-color: #f8d7da; padding: 10px; text-align: center; font-size: 18px;">
+  <strong>Global Announcement: </strong><span id="announcement-text">No announcement yet.</span>
+</div>
+
+<!-- Co-owner Access Section -->
+<div id="co-owner-section" style="display:none;">
+  <h3>Enter secret code to post an announcement:</h3>
+  <input type="password" id="secret-code-input" placeholder="Enter code">
+  <button onclick="checkCode()">Submit</button>
+  <br><br>
+  <textarea id="announcement-input" placeholder="Enter your global announcement here" style="width: 100%; height: 100px; display:none;"></textarea>
+  <button id="submit-announcement" style="display:none;" onclick="submitAnnouncement()">Submit Announcement</button>
+</div>
+
+<script>
+  // Secret code check for co-owner access
+  function checkCode() {
+    const secretCode = 'co-owner-secret'; // Set your secret code
+    const enteredCode = document.getElementById('secret-code-input').value;
+    if (enteredCode === secretCode) {
+      document.getElementById('co-owner-section').style.display = 'block';
+      document.getElementById('announcement-container').style.display = 'block';
+      document.getElementById('secret-code-input').disabled = true;
+      document.getElementById('submit-announcement').style.display = 'inline-block';
+    } else {
+      alert('Invalid code. Please try again.');
+    }
+  }
+
+  // Submit the global announcement and save it to localStorage
+  function submitAnnouncement() {
+    const announcementText = document.getElementById('announcement-input').value;
+    localStorage.setItem('globalAnnouncement', announcementText); // Store it in localStorage
+    document.getElementById('announcement-text').textContent = announcementText;
+    document.getElementById('announcement-input').value = '';  // Clear the input field
+    alert('Announcement posted successfully!');
+  }
+
+  // Display saved announcement from localStorage when the page loads
+  window.onload = function() {
+    const storedAnnouncement = localStorage.getItem('globalAnnouncement');
+    if (storedAnnouncement) {
+      document.getElementById('announcement-text').textContent = storedAnnouncement;
+      document.getElementById('announcement-container').style.display = 'block';
+    }
+  };
+</script>
